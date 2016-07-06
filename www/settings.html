@@ -1,0 +1,51 @@
+<!-- We don't need a full layout in this file because this page will be parsed with Ajax. -->
+
+<!-- Top Navbar-->
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="left">
+            <a href="#" class="back link">
+                <i class="icon icon-back"></i>
+                <span>Back</span>
+            </a>
+        </div>
+        <div class="center sliding">Settings</div>
+    </div>
+</div>
+<div class="pages">
+    <div data-page="settings" class="page">
+        <div class="page-content">
+            <div class="content-block">
+                <div class="content-block-title">Stove Temperature Threshold:</div>
+
+                <p class="buttons-row">
+                    <a id="decTempThreshold" class="button button-raised color-black" style="font-size:200%">-</a>
+                    <a id="temperatureThreshold" class="button color-black" style="font-size:150%">28&deg; C</a>
+                    <a id="incTempThreshold" class="button button-raised color-black" style="font-size:150%">+</a>
+                </p>
+
+                <div class="content-block-title">Time Since Last Movement Threshold:</div>
+                <div class="content-block">
+                 <div style="padding:0; margin-right:-15px; width:auto" class="content-block-inner">
+                   <div style="margin:0" class="list-block">
+                     <ul style="border-top:none">
+                       <li>
+                         <div class="item-content">
+                           <div class="item-inner">
+                             <div class="item-input">
+                               <input type="text" placeholder="Date Time" readonly id="movementThreshold">
+                             </div>
+                           </div>
+                         </div>
+                       </li>
+                     </ul>
+                   </div>
+                   <div id="picker-date-container"></div>
+                 </div>
+                </div>
+
+                <p><a href="#" class="button button-big button-fill color-green" onclick="applySettings()">Apply</a></p>
+            </div>
+        </div>
+    </div>
+</div>

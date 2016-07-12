@@ -12,7 +12,7 @@ var mainView = myApp.addView('.view-main', {
 
 var tempThreshold = 30;
 var hours = 1;
-var minutes = '00'
+var minutes = '00';
 
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
@@ -141,7 +141,7 @@ function applySettings() {
       dataType : 'json',
       crossDomain: true,
       data: {
-          q: "temperatureThreshold=" + tempThreshold + "&timeThreshold=" + ,
+          q: 'tempThreshold='+tempThreshold+'&timeThreshold=', // TODO fix this
           format: "json",
           callback:function(){
              return true;

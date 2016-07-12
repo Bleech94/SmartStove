@@ -77,7 +77,28 @@ myApp.onPageInit('settings', function (page) {
 // TODO Ajax GET to update temp + time values
 function refresh() {
   alert('refresh()');
-  //$('$currentTemperature').html('69');
+  $$('#currentTemperature').html('69');
+
+
+  $$.ajax({
+      url: "0.0.0.0:3000/refresh", // TODO insert pi IP
+      contentType: "OPTIONS",
+      dataType : 'json',
+      crossDomain: true,
+      data: {
+          q: "getValues",
+          format: "json",
+          callback:function(){
+             return true;
+          }
+      },
+      success: function( response ) {
+          alert( response ); // TODO read response and handle values
+      },
+      error: function( xhr, textStatus, thrownError ) {
+        alert(thrownError);
+      }
+  });
 }
 
 // TODO Ajax GET/POST to enable/disable the stove. May want to have 2 functions.
@@ -88,9 +109,49 @@ function toggleStove() {
 function adjustTempThreshold(adjustment) {
   alert('adjustTempThreshold(' + adjustment + ')');
   tempThreshold += adjustment;
+
+  $$.ajax({
+      url: "0.0.0.0:3000/toggle", // TODO insert pi IP
+      contentType: "OPTIONS",
+      dataType : 'json',
+      crossDomain: true,
+      data: {
+          q: "getThresholds",
+          format: "json",
+          callback:function(){
+             return true;
+          }
+      },
+      success: function( response ) {
+          alert( response ); // TODO read response and handle values
+      },
+      error: function( xhr, textStatus, thrownError ) {
+        alert(thrownError);
+      }
+  });
 }
 
 // TODO Ajax POST to change thresholds
 function applySettings() {
   alert('applySettings()');
+
+  $$.ajax({
+      url: "0.0.0.0:3000/apply", // TODO insert pi IP
+      contentType: "OPTIONS",
+      dataType : 'json',
+      crossDomain: true,
+      data: {
+          q: "temperatureThreshold=" + tempThreshold + "&timeThreshold=" + ,
+          format: "json",
+          callback:function(){
+             return true;
+          }
+      },
+      success: function( response ) {
+          alert( response ); // TODO read response and handle values
+      },
+      error: function( xhr, textStatus, thrownError ) {
+        alert(thrownError);
+      }
+  });
 }

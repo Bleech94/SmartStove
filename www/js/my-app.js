@@ -12,8 +12,6 @@ var mainView = myApp.addView('.view-main', {
 
 var tempThreshold = 30; // degrees C
 var timeThreshold = 60; // minutes
-var hours = 1;
-var minutes = '00';
 
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
@@ -82,7 +80,7 @@ myApp.onPageInit('settings', function (page) {
 // TODO Ajax GET to update temp + time values
 function refresh() {
   alert('refresh()');
-  $$('#currentTemperature').html('69');
+  $$('#currentTemperature').html(tempThreshold);
 
 
   $$.ajax({
@@ -109,11 +107,6 @@ function refresh() {
 // TODO Ajax GET/POST to enable/disable the stove. May want to have 2 functions.
 function toggleStove() {
   alert('toggleStove()');
-}
-
-function adjustTempThreshold(adjustment) {
-  alert('adjustTempThreshold(' + adjustment + ')');
-  tempThreshold += adjustment;
 
   $$.ajax({
       url: "0.0.0.0:3000/toggle", // TODO insert pi IP
@@ -121,7 +114,6 @@ function adjustTempThreshold(adjustment) {
       dataType : 'json',
       crossDomain: true,
       data: {
-          q: "getThresholds",
           format: "json",
           callback:function(){
              return true;
@@ -134,6 +126,11 @@ function adjustTempThreshold(adjustment) {
         alert(thrownError);
       }
   });
+}
+
+function adjustTempThreshold(adjustment) {
+  alert('adjustTempThreshold(' + adjustment + ')');
+  tempThreshold += adjustment;
 }
 
 // TODO Ajax POST to change thresholds

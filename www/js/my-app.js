@@ -10,7 +10,8 @@ var mainView = myApp.addView('.view-main', {
     dynamicNavbar: true
 });
 
-var tempThreshold = 30;
+var tempThreshold = 30; // degrees C
+var timeThreshold = 60; // minutes
 var hours = 1;
 var minutes = '00';
 
@@ -42,7 +43,7 @@ myApp.onPageInit('settings', function (page) {
       toolbar: false,
       rotateEffect: true,
 
-      value: [hours, minutes],
+      value: [Math.floor(timeThreshold / 60), (timeThreshold % 60 < 10? '0' + timeThreshold % 60: timeThreshold % 60)],
 
       formatValue: function (p, values) {
           return values[0] + ' hours ' + values[1] + ' minutes';
@@ -70,7 +71,11 @@ myApp.onPageInit('settings', function (page) {
                   return arr;
               })(),
           }
-      ]
+      ],
+
+      onChange: function(p, values, displayValues){ // TODO make sure this is correct
+        timeThreshold = parseInt(values[0]) * 60 + parseInt(values[1]);
+      }
   });
 })
 

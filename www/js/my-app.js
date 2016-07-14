@@ -10,6 +10,9 @@ var mainView = myApp.addView('.view-main', {
     dynamicNavbar: true
 });
 
+var currentTemp = 0; // degrees C
+var timeSinceLastMovement = 0; // minutes
+
 var tempThreshold = 30; // degrees C
 var timeThreshold = 60; // minutes
 
@@ -79,27 +82,28 @@ myApp.onPageInit('settings', function (page) {
 
 // TODO Ajax GET to update temp + time values
 function refresh() {
-  alert('refresh()');
-  $$('#currentTemperature').html(tempThreshold);
+  //$$('#currentTemperature').html(tempThreshold);
 
 
   $$.ajax({
-      url: "0.0.0.0:3000/refresh", // TODO insert pi IP
+      url: "134.87.154.181:8998/refresh", // TODO insert pi IP
       contentType: "OPTIONS",
       dataType : 'json',
       crossDomain: true,
       data: {
-          q: "getValues",
+          a: "getValues",
           format: "json",
           callback:function(){
              return true;
           }
       },
       success: function( response ) {
-          alert( response ); // TODO read response and handle values
+          alert('success');
+          alert(response); // TODO read response and update currentTemp + timeSinceLastMovement
       },
       error: function( xhr, textStatus, thrownError ) {
-        alert(thrownError);
+          alert('error: ' + thrownError);
+          alert(textStatus);
       }
   });
 }
@@ -143,14 +147,14 @@ function applySettings() {
       dataType : 'json',
       crossDomain: true,
       data: {
-          q: 'tempThreshold='+tempThreshold+'&timeThreshold=', // TODO fix this
+          q: 'tempThreshold='+tempThreshold+'&timeThreshold='+timeThreshold, // TODO formatting?
           format: "json",
           callback:function(){
              return true;
           }
       },
       success: function( response ) {
-          alert( response ); // TODO read response and handle values
+          alert( response );
       },
       error: function( xhr, textStatus, thrownError ) {
         alert(thrownError);

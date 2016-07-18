@@ -10,15 +10,17 @@ var mainView = myApp.addView('.view-main', {
     dynamicNavbar: true
 });
 
-var currentTemp = 0; // degrees C
-var timeSinceLastMovement = 0; // minutes
-
 var tempThreshold = 30; // degrees C
 var timeThreshold = 60; // minutes
 
+var savedTempThreshold = 30;
+var savedTimeThreshold = 60;
+
+var toggleButtonState = 0;
+
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
-
+    //setInterval(refresh(), 3000);
 });
 
 // Using page callback for page:
@@ -44,7 +46,7 @@ myApp.onPageInit('settings', function (page) {
       toolbar: false,
       rotateEffect: true,
 
-      value: [Math.floor(timeThreshold / 60), (timeThreshold % 60 < 10? '0' + timeThreshold % 60: timeThreshold % 60)],
+      value: [Math.floor(savedTimeThreshold / 60), (savedTimeThreshold % 60 < 10? '0' + savedTimeThreshold % 60: savedTimeThreshold % 60)],
 
       formatValue: function (p, values) {
           return values[0] + ' hours ' + values[1] + ' minutes';
@@ -74,7 +76,7 @@ myApp.onPageInit('settings', function (page) {
           }
       ],
 
-      onChange: function(p, values, displayValues){ // TODO make sure this is correct
+      onChange: function(p, values, displayValues){
         timeThreshold = parseInt(values[0]) * 60 + parseInt(values[1]);
       }
   });
@@ -82,28 +84,29 @@ myApp.onPageInit('settings', function (page) {
 
 // TODO Ajax GET to update temp + time values
 function refresh() {
-  //$$('#currentTemperature').html(tempThreshold);
-
-
   $$.ajax({
-      url: "134.87.154.181:8998/refresh", // TODO insert pi IP
+      url: "http://134.87.154.181:8997/refresh", // TODO insert pi IP
       contentType: "OPTIONS",
-      dataType : 'json',
+      dataType : 'jsonp',
       crossDomain: true,
       data: {
-          a: "getValues",
+          q: "refresh",
           format: "json",
           callback:function(){
              return true;
           }
       },
       success: function( response ) {
-          alert('success');
-          alert(response); // TODO read response and update currentTemp + timeSinceLastMovement
+          var jsonResponse = JSON.parse(response);
+          alert(jsonResponse.temperature + ', ' + jsonResponse.timeSinceLastMovement);
+
+          // TODO make vars to store these?
+          $$('#currentTemperature').text(jsonResponse.temperature);
+          $$('#timeSinceLastMovement').text(jsonResponse.timeSinceLastMovement);
+          // TODO check that this works
       },
       error: function( xhr, textStatus, thrownError ) {
-          alert('error: ' + thrownError);
-          alert(textStatus);
+          alert('error');
       }
   });
 }
@@ -118,6 +121,7 @@ function toggleStove() {
       dataType : 'json',
       crossDomain: true,
       data: {
+          q:"toggle",
           format: "json",
           callback:function(){
              return true;
@@ -125,6 +129,13 @@ function toggleStove() {
       },
       success: function( response ) {
           alert( response ); // TODO read response and handle values
+          if(toggleButtonState == 0) {
+            $$('#toggleButtonContainer').html('<p><a href="#" class="button button-big button-fill color-green" onclick="toggleStove()">Enable Stove</a></p>');
+            toggleButtonState = 1;
+          } else {
+            $$('#toggleButtonContainer').html('<p><a href="#" class="button button-big button-fill color-red" onclick="toggleStove()">Disable Stove</a></p>');
+            toggleButtonState = 0;
+          }
       },
       error: function( xhr, textStatus, thrownError ) {
         alert(thrownError);
@@ -132,22 +143,22 @@ function toggleStove() {
   });
 }
 
-function adjustTempThreshold(adjustment) {
-  alert('adjustTempThreshold(' + adjustment + ')');
-  tempThreshold += adjustment;
-}
-
 // TODO Ajax POST to change thresholds
 function applySettings() {
   alert('applySettings()');
 
-  $$.ajax({
+  savedTempThreshold = tempThreshold;
+  savedTimeThreshold = timeThreshold;
+
+  // TODO make this work with cole's stuff - should change thresholds on the pi
+  /*$$.ajax({
       url: "0.0.0.0:3000/apply", // TODO insert pi IP
       contentType: "OPTIONS",
       dataType : 'json',
       crossDomain: true,
       data: {
-          q: 'tempThreshold='+tempThreshold+'&timeThreshold='+timeThreshold, // TODO formatting?
+          q: 'tempThreshold='+tempThreshold, // TODO formatting?
+          w: 'timeThreshold='+timeThreshold,
           format: "json",
           callback:function(){
              return true;
@@ -159,5 +170,5 @@ function applySettings() {
       error: function( xhr, textStatus, thrownError ) {
         alert(thrownError);
       }
-  });
+  });*/
 }

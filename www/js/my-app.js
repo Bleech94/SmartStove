@@ -4,6 +4,8 @@ var myApp = new Framework7();
 // If we need to use custom DOM library, let's save it to $$ variable:
 var $$ = Dom7;
 
+var piIP = "http://134.87.157.128:8988";
+
 // Add view
 var mainView = myApp.addView('.view-main', {
     // Because we want to use dynamic navbar, we need to enable it for this view:
@@ -85,7 +87,7 @@ myApp.onPageInit('settings', function (page) {
 // TODO Ajax GET to update temp + time values
 function refresh() {
   $$.ajax({
-      url: "http://134.87.154.181:8997/refresh", // TODO insert pi IP
+      url: piIP + "/refresh", // TODO insert pi IP
       contentType: "OPTIONS",
       dataType : 'jsonp',
       crossDomain: true,
@@ -98,12 +100,15 @@ function refresh() {
       },
       success: function( response ) {
           var jsonResponse = JSON.parse(response);
-          alert(jsonResponse.temperature + ', ' + jsonResponse.timeSinceLastMovement);
+
+          var temp = Math.round(jsonResponse.temperature * 10) / 10;
+
+          var timeHours = Math.floor(jsonResponse.timeSinceLastMovement / 3600);
+          var timeMinutes = (jsonResponse.timeSinceLastMovement % 3600); // TODO fix
 
           // TODO make vars to store these?
-          $$('#currentTemperature').text(jsonResponse.temperature);
-          $$('#timeSinceLastMovement').text(jsonResponse.timeSinceLastMovement);
-          // TODO check that this works
+          $$('#currentTemperature').text(temp);
+          $$('#timeSinceLastMovement').text(timeHours + ":" + timeMinutes);
       },
       error: function( xhr, textStatus, thrownError ) {
           alert('error');
@@ -113,12 +118,10 @@ function refresh() {
 
 // TODO Ajax GET/POST to enable/disable the stove. May want to have 2 functions.
 function toggleStove() {
-  alert('toggleStove()');
-
   $$.ajax({
-      url: "0.0.0.0:3000/toggle", // TODO insert pi IP
+      url: piIP + "/toggle", // TODO insert pi IP
       contentType: "OPTIONS",
-      dataType : 'json',
+      dataType : 'jsonp',
       crossDomain: true,
       data: {
           q:"toggle",
@@ -128,7 +131,6 @@ function toggleStove() {
           }
       },
       success: function( response ) {
-          alert( response ); // TODO read response and handle values
           if(toggleButtonState == 0) {
             $$('#toggleButtonContainer').html('<p><a href="#" class="button button-big button-fill color-green" onclick="toggleStove()">Enable Stove</a></p>');
             toggleButtonState = 1;
@@ -138,37 +140,35 @@ function toggleStove() {
           }
       },
       error: function( xhr, textStatus, thrownError ) {
-        alert(thrownError);
+        alert('error');
       }
   });
 }
 
 // TODO Ajax POST to change thresholds
 function applySettings() {
-  alert('applySettings()');
-
   savedTempThreshold = tempThreshold;
   savedTimeThreshold = timeThreshold;
 
   // TODO make this work with cole's stuff - should change thresholds on the pi
-  /*$$.ajax({
-      url: "0.0.0.0:3000/apply", // TODO insert pi IP
+  $$.ajax({
+      url: piIP + "/update", // TODO insert pi IP
       contentType: "OPTIONS",
-      dataType : 'json',
+      dataType : 'jsonp',
       crossDomain: true,
       data: {
-          q: 'tempThreshold='+tempThreshold, // TODO formatting?
-          w: 'timeThreshold='+timeThreshold,
+          q: tempThreshold,
+          w: timeThreshold,
           format: "json",
           callback:function(){
              return true;
           }
       },
       success: function( response ) {
-          alert( response );
+          alert("success");
       },
       error: function( xhr, textStatus, thrownError ) {
-        alert(thrownError);
+        alert('error');
       }
-  });*/
+  });
 }

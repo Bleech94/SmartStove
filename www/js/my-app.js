@@ -4,7 +4,7 @@ var myApp = new Framework7();
 // If we need to use custom DOM library, let's save it to $$ variable:
 var $$ = Dom7;
 
-var piIP = "http://134.87.157.128:8988";
+var piIP = "http://134.87.157.128:8987";
 
 // Add view
 var mainView = myApp.addView('.view-main', {
@@ -13,16 +13,16 @@ var mainView = myApp.addView('.view-main', {
 });
 
 var tempThreshold = 30; // degrees C
-var timeThreshold = 60; // minutes
+var timeThreshold = 300; // seconds
 
 var savedTempThreshold = 30;
-var savedTimeThreshold = 60;
+var savedTimeThreshold = 300;
 
 var toggleButtonState = 0;
 
 // Handle Cordova Device Ready Event
 $$(document).on('deviceready', function() {
-    //setInterval(refresh(), 3000);
+
 });
 
 // Using page callback for page:
@@ -48,18 +48,19 @@ myApp.onPageInit('settings', function (page) {
       toolbar: false,
       rotateEffect: true,
 
-      value: [Math.floor(savedTimeThreshold / 60), (savedTimeThreshold % 60 < 10? '0' + savedTimeThreshold % 60: savedTimeThreshold % 60)],
+      value: [(Math.floor(savedTimeThreshold / 60) < 10? '0' + Math.floor(savedTimeThreshold / 60) : Math.floor(savedTimeThreshold / 60)),
+      (Math.floor(savedTimeThreshold % 60) < 10? '0' + Math.floor(savedTimeThreshold % 60): Math.floor(savedTimeThreshold % 60))],
 
       formatValue: function (p, values) {
-          return values[0] + ' hours ' + values[1] + ' minutes';
+          return values[0] + ' minutes ' + values[1] + ' seconds';
       },
 
       cols: [
-          // Hours
+          // Minutes
           {
               values: (function () {
                   var arr = [];
-                  for (var i = 0; i <= 12; i++) { arr.push(i); }
+                  for (var i = 0; i <= 59; i++) { arr.push(i < 10 ? '0' + i : i); }
                   return arr;
               })(),
           },
@@ -68,7 +69,7 @@ myApp.onPageInit('settings', function (page) {
               divider: true,
               content: ':'
           },
-          // Minutes
+          // Seconds
           {
               values: (function () {
                   var arr = [];
@@ -84,10 +85,10 @@ myApp.onPageInit('settings', function (page) {
   });
 })
 
-// TODO Ajax GET to update temp + time values
+// Ajax GET to update temp + time values
 function refresh() {
   $$.ajax({
-      url: piIP + "/refresh", // TODO insert pi IP
+      url: piIP + "/refresh",
       contentType: "OPTIONS",
       dataType : 'jsonp',
       crossDomain: true,
@@ -99,16 +100,18 @@ function refresh() {
           }
       },
       success: function( response ) {
+
           var jsonResponse = JSON.parse(response);
 
           var temp = Math.round(jsonResponse.temperature * 10) / 10;
 
-          var timeHours = Math.floor(jsonResponse.timeSinceLastMovement / 3600);
-          var timeMinutes = (jsonResponse.timeSinceLastMovement % 3600); // TODO fix
+          var timeInt = Math.round(jsonResponse.timeSinceLastMovement);
 
-          // TODO make vars to store these?
-          $$('#currentTemperature').text(temp);
-          $$('#timeSinceLastMovement').text(timeHours + ":" + timeMinutes);
+          var timeMinutes = Math.floor(timeInt / 60);
+          var timeSeconds = Math.floor(timeInt % 60);
+
+          $$('#currentTemperature').text(temp + '° C');
+          $$('#timeSinceLastMovement').text((timeMinutes < 10? '0' + timeMinutes : timeMinutes) + ":" + (timeSeconds < 10? '0' + timeSeconds : timeSeconds));
       },
       error: function( xhr, textStatus, thrownError ) {
           alert('error');
@@ -116,10 +119,10 @@ function refresh() {
   });
 }
 
-// TODO Ajax GET/POST to enable/disable the stove. May want to have 2 functions.
+// Ajax GET/POST to enable/disable the stove. May want to have 2 functions.
 function toggleStove() {
   $$.ajax({
-      url: piIP + "/toggle", // TODO insert pi IP
+      url: piIP + "/toggle",
       contentType: "OPTIONS",
       dataType : 'jsonp',
       crossDomain: true,
@@ -145,14 +148,13 @@ function toggleStove() {
   });
 }
 
-// TODO Ajax POST to change thresholds
+// Ajax POST to change thresholds
 function applySettings() {
   savedTempThreshold = tempThreshold;
   savedTimeThreshold = timeThreshold;
 
-  // TODO make this work with cole's stuff - should change thresholds on the pi
   $$.ajax({
-      url: piIP + "/update", // TODO insert pi IP
+      url: piIP + "/update",
       contentType: "OPTIONS",
       dataType : 'jsonp',
       crossDomain: true,
@@ -165,7 +167,7 @@ function applySettings() {
           }
       },
       success: function( response ) {
-          alert("success");
+        alert('Settings updated.')
       },
       error: function( xhr, textStatus, thrownError ) {
         alert('error');
